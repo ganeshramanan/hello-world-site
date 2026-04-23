@@ -33,8 +33,10 @@ const firebaseConfig = {
     const auth = getAuth(app);
 
     const userEmail = document.getElementById("userEmail");
-alert ("in dashboard");
-    alert ("user email" + userEmail);
+<script>
+  alert("Hello! This is an alert message");
+</script>
+
     // ✅ Check login status
     onAuthStateChanged(auth, (user) => {
       if (user) {

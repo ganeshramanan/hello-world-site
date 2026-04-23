@@ -5,9 +5,15 @@
 </head>
 <body style="text-align:center; margin-top:50px; font-family:Arial;">
 
-  <h2>Welcome to Dashboard 🎉</h2>
+  <h2>My Tasks 📝</h2>
   <p id="userEmail"></p>
 
+  <input type="text" id="taskInput" placeholder="Enter task">
+  <button id="addTask">Add Task</button>
+
+  <ul id="taskList"></ul>
+
+  <br><br>
   <button id="logout">Logout</button>
 
   <script type="module">
@@ -18,7 +24,18 @@
       signOut
     } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-    // 🔴 Paste SAME Firebase config here
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      deleteDoc,
+      doc,
+      query,
+      where
+    } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    // 🔴 Paste your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDSvyQ45TfarzDwuKZ0Yox2wOmaJlJU8ZY",
   authDomain: "hello-login-app.firebaseapp.com",
@@ -30,18 +47,64 @@ const firebaseConfig = {
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const userEmail = document.getElementById("userEmail");
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
 
-    // ✅ Check login status
-    onAuthStateChanged(auth, (user) => {
+    let currentUser = null;
+
+    // ✅ Check login
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
+        currentUser = user;
         userEmail.innerText = "Logged in as: " + user.email;
+        loadTasks();
       } else {
-        // ❌ Not logged in → go back to login page
         window.location.href = "login.html";
       }
     });
+
+    // ➕ Add task
+    document.getElementById("addTask").onclick = async () => {
+      if (taskInput.value === "") return;
+
+      await addDoc(collection(db, "tasks"), {
+        text: taskInput.value,
+        user: currentUser.uid
+      });
+
+      taskInput.value = "";
+      loadTasks();
+    };
+
+    // 📥 Load tasks
+    async function loadTasks() {
+      taskList.innerHTML = "";
+
+      const q = query(
+        collection(db, "tasks"),
+        where("user", "==", currentUser.uid)
+      );
+
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((docSnap) => {
+        const li = document.createElement("li");
+        li.innerText = docSnap.data().text;
+
+        const btn = document.createElement("button");
+        btn.innerText = "Delete";
+        btn.onclick = async () => {
+          await deleteDoc(doc(db, "tasks", docSnap.id));
+          loadTasks();
+        };
+
+        li.appendChild(btn);
+        taskList.appendChild(li);
+      });
+    }
 
     // 🔓 Logout
     document.getElementById("logout").onclick = () => {

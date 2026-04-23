@@ -5,15 +5,9 @@
 </head>
 <body style="text-align:center; margin-top:50px; font-family:Arial;">
 
-  <h2>My Tasks 📝</h2>
+  <h2>Welcome to Dashboard 🎉</h2>
   <p id="userEmail"></p>
 
-  <input type="text" id="taskInput" placeholder="Enter task">
-  <button id="addTask">Add Task</button>
-
-  <ul id="taskList"></ul>
-
-  <br><br>
   <button id="logout">Logout</button>
 
   <script type="module">
@@ -24,72 +18,28 @@
       signOut
     } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
-    // 🔴 Your Firebase config (same as before)
-const firebaseConfig = {
-  apiKey: "AIzaSyDSvyQ45TfarzDwuKZ0Yox2wOmaJlJU8ZY",
-  authDomain: "hello-login-app.firebaseapp.com",
-  projectId: "hello-login-app",
-  storageBucket: "hello-login-app.firebasestorage.app",
-  messagingSenderId: "149479552320",
-  appId: "1:149479552320:web:3e4efd1435ec74d05df6a5"
-};
+    // 🔴 Paste SAME Firebase config here
+    const firebaseConfig = {
+      apiKey: "PASTE_YOURS",
+      authDomain: "PASTE_YOURS",
+      projectId: "PASTE_YOURS",
+      appId: "PASTE_YOURS"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
     const userEmail = document.getElementById("userEmail");
-    const taskInput = document.getElementById("taskInput");
-    const taskList = document.getElementById("taskList");
 
-    let currentUser = null;
-
-    // 🔐 Check login
+    // ✅ Check login status
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        currentUser = user;
         userEmail.innerText = "Logged in as: " + user.email;
-        loadTasks();
       } else {
+        // ❌ Not logged in → go back to login page
         window.location.href = "login.html";
       }
     });
-
-    // ➕ Add task
-    document.getElementById("addTask").onclick = () => {
-      if (taskInput.value === "") return;
-
-      let tasks = JSON.parse(localStorage.getItem(currentUser.uid)) || [];
-
-      tasks.push(taskInput.value);
-
-      localStorage.setItem(currentUser.uid, JSON.stringify(tasks));
-
-      taskInput.value = "";
-      loadTasks();
-    };
-
-    // 📥 Load tasks
-    function loadTasks() {
-      taskList.innerHTML = "";
-
-      let tasks = JSON.parse(localStorage.getItem(currentUser.uid)) || [];
-
-      tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.innerText = task;
-
-        const btn = document.createElement("button");
-        btn.innerText = "Delete";
-        btn.onclick = () => {
-          tasks.splice(index, 1);
-          localStorage.setItem(currentUser.uid, JSON.stringify(tasks));
-          loadTasks();
-        };
-
-        li.appendChild(btn);
-        taskList.appendChild(li);
-      });
-    }
 
     // 🔓 Logout
     document.getElementById("logout").onclick = () => {

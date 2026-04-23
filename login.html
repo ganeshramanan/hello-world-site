@@ -58,6 +58,14 @@ const firebaseConfig = {
     document.getElementById("logout").onclick = () => {
       signOut(auth).then(() => message.innerText = "Logged out");
     };
+
+    document.getElementById("login").onclick = () => {
+  signInWithEmailAndPassword(auth, email.value, password.value)
+    .then(() => {
+      window.location.href = "dashboard.html"; // ✅ redirect here
+    })
+    .catch(err => message.innerText = err.message);
+};
   </script>
 
 </body>
